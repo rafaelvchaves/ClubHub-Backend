@@ -36,7 +36,16 @@ class Club(db.Model):
             'description': self.description,
             'level': self.level,
             'application_required': self.application_required,
-            # 'interested_users': [u.serialize() for u in self.interested_users]
+            'interested_users': [u.serialize_no_clubs() for u in self.interested_users]
+        }
+    
+    def serialize_no_users(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'level': self.level,
+            'application_required': self.application_required
         }
 
     
@@ -60,7 +69,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'netid': self.netid,
-            'favorite_clubs': [c.serialize() for c in self.favorite_clubs],
+            'favorite_clubs': [c.serialize_no_users() for c in self.favorite_clubs],
             'created_posts': [p.serialize() for p in self.created_posts],
             'liked_posts': [p.serialize() for p in self.liked_posts]
         }
@@ -70,6 +79,12 @@ class User(db.Model):
             'id': self.id,
             'netid': self.netid,
             'favorite_clubs': [c.serialize() for c in self.favorite_clubs]
+        }
+    
+   def serialize_no_clubs(self):
+        return {
+            'id': self.id,
+            'netid': self.netid
         }
     
 class Post(db.Model):
