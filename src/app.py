@@ -71,5 +71,12 @@ def delete_user(user_id):
     db.session.commit()
     return json.dumps({'success': True, 'data': user.serialize()}), 200
 
+@app.route('/api/user/<int:user_id>/')
+def get_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return json.dumps({'success': False, 'error': 'User not found'}), 404
+    return json.dumps({'success': True, 'data': user.serialize()}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
