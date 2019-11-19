@@ -25,16 +25,25 @@ def create_club():
     name = post_body.get('name','')
     description = post_body.get('description','')
     level = post_body.get('level','')
-    application_required = post_body.get('application_required',None)
+    application_required = post_body.get('application_required', None)
     club = Club(
-        name = name,
-        description = description,
-        level = level,
-        application_required = application_required
+        name=name,
+        description=description,
+        level=level,
+        application_required=application_required
     )
     db.session.add(club)
     db.session.commit()
     return json.dumps({'success': True, 'data': club.serialize()}), 201
+
+@app.route('/api/club/<int:club_id>/')
+def get_club(club_id):
+    course = Club.query.filter_by(id=club_id).first()
+    if not course:
+        return json.dumps({'success': False, 'error': 'Club not found'}), 404
+    return json.dumps({'success': True, 'data': course.serialize()}), 200
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
