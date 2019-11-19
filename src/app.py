@@ -43,7 +43,33 @@ def get_club(club_id):
         return json.dumps({'success': False, 'error': 'Club not found'}), 404
     return json.dumps({'success': True, 'data': course.serialize()}), 200
 
+@app.route('/api/users/')
+def get_all_users():
+    users = User.query.all()
+    res = {'success': True, 'data': [u.serialize() for u in users]}
+    return json.dumps(res), 200
 
+@app.route('/api/users/', methods=['POST'])
+def create_user():
+    post_body = json.loads(request.data)
+    netid = post_body.get('netid','')
+    password = post_body.get('password','')
+    user = User(
+        netid = netid,
+        password = password
+    )
+    db.session.add(user)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': user.serialize()}), 201
+
+@app.route('/api/user/<int:user_id>/', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return json.dumps({'success': False, 'error': 'User not found!'}), 404
+    db.session.delete(user)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': user.serialize()}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
