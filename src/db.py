@@ -81,7 +81,7 @@ class User(db.Model):
             'favorite_clubs': [c.serialize() for c in self.favorite_clubs]
         }
     
-   def serialize_no_clubs(self):
+    def serialize_no_clubs(self):
         return {
             'id': self.id,
             'netid': self.netid
