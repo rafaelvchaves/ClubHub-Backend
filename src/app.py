@@ -22,9 +22,9 @@ def get_all_clubs():
 @app.route('/api/clubs/', methods=['POST'])
 def create_club():
     post_body = json.loads(request.data)
-    name = post_body.get('name','')
-    description = post_body.get('description','')
-    level = post_body.get('level','')
+    name = post_body.get('name')
+    description = post_body.get('description', '')
+    level = post_body.get('level')
     application_required = post_body.get('application_required', None)
     club = Club(
         name=name,
@@ -52,11 +52,13 @@ def get_all_users():
 @app.route('/api/users/', methods=['POST'])
 def create_user():
     post_body = json.loads(request.data)
-    netid = post_body.get('netid','')
-    password = post_body.get('password','')
+    name = post_body.get('name')
+    netid = post_body.get('netid')
+    password = post_body.get('password')
     user = User(
-        netid = netid,
-        password = password
+        name=name,
+        netid=netid,
+        password=password
     )
     db.session.add(user)
     db.session.commit()
