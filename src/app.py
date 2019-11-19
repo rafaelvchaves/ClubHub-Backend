@@ -78,5 +78,34 @@ def get_user(user_id):
         return json.dumps({'success': False, 'error': 'User not found'}), 404
     return json.dumps({'success': True, 'data': user.serialize()}), 200
 
+@app.route('/api/club/<int:club_id>/')
+def get_club(club_id):
+    club = Club.query.filter_by(id=club_id).first()
+    if not club:
+        return json.dumps({'success': False, 'error': 'Club not found'}), 404
+    return json.dumps({'success': True, 'data': club.serialize()}), 200
+
+@app.route('/api/posts/', methods=['POST'])
+def create_post():
+    post_body = json.loads(request.data)
+    title = post_body.get('title')
+    body = post_body.get('body')
+    author_id = post_body.get('author_id')
+    post = Post(
+        title=title,
+        body=body,
+        author_id=author_id
+    )
+    db.session.add(post)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': post.serialize()}), 201
+
+@app.route('/api/post/<int:post_id>/')
+def get_post(post_id):
+    post = Post.query.filter_by(id=post_id).first()
+    if not post:
+        return json.dumps({'success': False, 'error': 'Post not found'}), 404
+    return json.dumps({'success': True, 'data': post.serialize()}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
