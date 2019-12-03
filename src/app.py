@@ -1,6 +1,7 @@
 import json
 from db import db, Club, User, Post
 from flask import Flask, request
+from sqlalchemy import or_, and_
 
 db_filename = "ClubHub.db"
 app = Flask(__name__)
@@ -15,7 +16,17 @@ with app.app_context():
     
 @app.route('/api/clubs/')
 def get_all_clubs():
-    clubs = Club.query.all()
+    if not request.data:
+        clubs = Club.query.all()
+    else:
+        body = json.loads(request.data)
+        search_query = body.get('search_query')
+        level = body.get('level')
+        application_required = body.get('application_required')
+        matches_text = or_(Club.name.contains(search_query), Club.description.contains(search_query)) if search_query else True
+        matches_level = Club.level == level if level else True
+        matches_app_required = or_(Club.application_required == application_required, Club.application_required.is_(None)) if application_required is not None else True
+        clubs = Club.query.filter(and_(matches_level, matches_text, matches_app_required))
     res = {'success': True, 'data': [c.serialize() for c in clubs]}
     return json.dumps(res), 200
 
@@ -79,13 +90,6 @@ def get_user(user_id):
     if not user:
         return json.dumps({'success': False, 'error': 'User not found'}), 404
     return json.dumps({'success': True, 'data': user.serialize()}), 200
-
-@app.route('/api/club/<int:club_id>/')
-def get_club(club_id):
-    club = Club.query.filter_by(id=club_id).first()
-    if not club:
-        return json.dumps({'success': False, 'error': 'Club not found'}), 404
-    return json.dumps({'success': True, 'data': club.serialize()}), 200
 
 @app.route('/api/posts/', methods=['POST'])
 def create_post():
