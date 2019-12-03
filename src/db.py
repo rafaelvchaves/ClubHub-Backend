@@ -20,7 +20,7 @@ class Club(db.Model):
     level = db.Column(db.String, nullable=False)
     application_required = db.Column(db.Boolean)
     interested_users = db.relationship('User', secondary=association_club_user, back_populates='favorite_clubs')
-    # tags = db.Column(db.String, nullable=False)
+    category = db.Column(db.String, nullable=False)
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
@@ -28,6 +28,7 @@ class Club(db.Model):
         self.level = kwargs.get('level')
         self.application_required = kwargs.get('application_required')
         self.interested_users = []
+        self.category = kwargs.get('category')
 
     def serialize(self):
         return {
@@ -94,11 +95,11 @@ class Post(db.Model):
     body = db.Column(db.String, nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     interested_users = db.relationship('User', secondary=association_user_post, back_populates='liked_posts')
-    #type
 
     def __init__(self, **kwargs):
         self.title = kwargs.get('title')
         self.body = kwargs.get('body')
+        self.author_id = kwargs.get('author_id')
         self.interested_users = []
 
     def serialize(self):
@@ -109,5 +110,3 @@ class Post(db.Model):
             'author_id': self.author_id,
             'interested_users': [u.serialize_no_posts() for u in self.interested_users]
         }
-
-# class Tag(db.Model)
