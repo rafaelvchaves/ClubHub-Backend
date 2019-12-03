@@ -20,13 +20,15 @@ def get_all_clubs():
         clubs = Club.query.all()
     else:
         request_body = json.loads(request.data)
+        category = request_body.get('category')
         search_query = request_body.get('search_query')
         level = request_body.get('level')
         application_required = request_body.get('application_required')
+        matches_category = Club.category == category if category else True
         matches_text = or_(Club.name.contains(search_query), Club.description.contains(search_query)) if search_query else True
         matches_level = Club.level == level if level else True
         matches_app_required = or_(Club.application_required == application_required, Club.application_required.is_(None)) if application_required is not None else True
-        clubs = Club.query.filter(and_(matches_level, matches_text, matches_app_required))
+        clubs = Club.query.filter(and_(matches_category, matches_text, matches_level, matches_app_required))
     res = {'success': True, 'data': [c.serialize() for c in clubs]}
     return json.dumps(res), 200
 
