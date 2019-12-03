@@ -19,10 +19,10 @@ def get_all_clubs():
     if not request.data:
         clubs = Club.query.all()
     else:
-        body = json.loads(request.data)
-        search_query = body.get('search_query')
-        level = body.get('level')
-        application_required = body.get('application_required')
+        request_body = json.loads(request.data)
+        search_query = request_body.get('search_query')
+        level = request_body.get('level')
+        application_required = request_body.get('application_required')
         matches_text = or_(Club.name.contains(search_query), Club.description.contains(search_query)) if search_query else True
         matches_level = Club.level == level if level else True
         matches_app_required = or_(Club.application_required == application_required, Club.application_required.is_(None)) if application_required is not None else True
@@ -90,6 +90,20 @@ def get_user(user_id):
     if not user:
         return json.dumps({'success': False, 'error': 'User not found'}), 404
     return json.dumps({'success': True, 'data': user.serialize()}), 200
+
+@app.route('/api/posts/')
+def get_all_posts():
+    if not request.data:
+        posts = Post.query.all()
+    else:
+        request_body = json.loads(request.data)
+        search_query = request_body.get('search_query')
+        author = request_body.get('author_id')
+        matches_text = or_(Post.title.contains(search_query), Post.body.contains(search_query)) if search_query else True
+        matches_author = Post.author_id == author if author else True
+        posts = Post.query.filter(and_(matches_author, matches_text))
+    res = {'success': True, 'data': [p.serialize() for p in posts]}
+    return json.dumps(res), 200
 
 @app.route('/api/posts/', methods=['POST'])
 def create_post():
