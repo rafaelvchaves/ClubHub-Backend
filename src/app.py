@@ -56,6 +56,15 @@ def get_club(club_id):
         return json.dumps({'success': False, 'error': 'Club not found'}), 404
     return json.dumps({'success': True, 'data': course.serialize()}), 200
 
+@app.route('/api/club/<int:club_id>/', methods=['DELETE'])
+def delete_club(club_id):
+    club = Club.query.filter_by(id=club_id).first()
+    if not club:
+        return json.dumps({'success': False, 'error': 'Club not found!'}), 404
+    db.session.delete(club)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': club.serialize()}), 200
+
 @app.route('/api/users/')
 def get_all_users():
     users = User.query.all()
@@ -127,6 +136,15 @@ def get_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
     if not post:
         return json.dumps({'success': False, 'error': 'Post not found'}), 404
+    return json.dumps({'success': True, 'data': post.serialize()}), 200
+
+@app.route('/api/post/<int:post_id>/', methods=['DELETE'])
+def delete_post(post_id):
+    post = Post.query.filter_by(id=post_id).first()
+    if not post:
+        return json.dumps({'success': False, 'error': 'Post not found!'}), 404
+    db.session.delete(post)
+    db.session.commit()
     return json.dumps({'success': True, 'data': post.serialize()}), 200
 
 if __name__ == '__main__':
