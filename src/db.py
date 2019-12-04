@@ -37,7 +37,8 @@ class Club(db.Model):
             'description': self.description,
             'level': self.level,
             'application_required': self.application_required,
-            'interested_users': [u.serialize_no_clubs() for u in self.interested_users]
+            'interested_users': [u.serialize_no_clubs() for u in self.interested_users],
+            'category': self.category
         }
     
     def serialize_no_users(self):
