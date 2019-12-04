@@ -39,11 +39,15 @@ def create_club():
     description = post_body.get('description', '')
     level = post_body.get('level')
     application_required = post_body.get('application_required', None)
+    category = post_body.get('category')
+    href = post_body.get('href', None)
     club = Club(
         name=name,
         description=description,
         level=level,
-        application_required=application_required
+        application_required=application_required,
+        category=category,
+        href=href
     )
     db.session.add(club)
     db.session.commit()

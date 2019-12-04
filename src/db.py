@@ -21,6 +21,7 @@ class Club(db.Model):
     application_required = db.Column(db.Boolean)
     interested_users = db.relationship('User', secondary=association_club_user, back_populates='favorite_clubs')
     category = db.Column(db.String, nullable=False)
+    href = db.Column(db.String)
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
@@ -29,6 +30,7 @@ class Club(db.Model):
         self.application_required = kwargs.get('application_required')
         self.interested_users = []
         self.category = kwargs.get('category')
+        self.href = kwargs.get('href')
 
     def serialize(self):
         return {
@@ -38,7 +40,8 @@ class Club(db.Model):
             'level': self.level,
             'application_required': self.application_required,
             'interested_users': [u.serialize_no_clubs() for u in self.interested_users],
-            'category': self.category
+            'category': self.category,
+            'href': self.href
         }
     
     def serialize_no_users(self):
@@ -47,7 +50,9 @@ class Club(db.Model):
             'name': self.name,
             'description': self.description,
             'level': self.level,
-            'application_required': self.application_required
+            'application_required': self.application_required,
+            'category': self.category,
+            'href': self.href
         }
 
     
