@@ -1,0 +1,6 @@
+version: '3'
+services:
+  clubhub:
+    image: rafaelchaves/clubhub
+    ports:
+      - "5000:5000"
