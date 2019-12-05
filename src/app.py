@@ -97,11 +97,11 @@ def extract_token(request):
 def register_account():
     post_body = json.loads(request.data)
     name = post_body.get('name')
-    netid = post_body.get('netid')
+    email = post_body.get('email')
     password = post_body.get('password')
-    if not name or not netid or not password:
-        return json.dump({'success': False, 'error': 'Missing name, netid, or password'})
-    created, user = users_dao.create_user(name, netid, password)
+    if not name or not email or not password:
+        return json.dump({'success': False, 'error': 'Missing name, email, or password'})
+    created, user = users_dao.create_user(name, email, password)
     if not created:
         return json.dumps({'error': 'User already exists'})
     return json.dumps({
@@ -113,13 +113,13 @@ def register_account():
 @app.route("/login/", methods=["POST"])
 def login():
     post_body = json.loads(request.data)
-    netid = post_body.get('netid')
+    email = post_body.get('email')
     password = post_body.get('password')
-    if not netid or not password:
-        return json.dumps({'success': False, 'error': 'Missing name, netid, or password'})
-    success, user = users_dao.verify_credentials(netid, password)
+    if not email or not password:
+        return json.dumps({'success': False, 'error': 'Missing name, email, or password'})
+    success, user = users_dao.verify_credentials(email, password)
     if not success:
-        return json.dumps({'error': 'Incorrect netid or password'})
+        return json.dumps({'error': 'Incorrect email or password'})
     return json.dumps({
         'session_token': user.session_token,
         'session_expiration': str(user.session_expiration),

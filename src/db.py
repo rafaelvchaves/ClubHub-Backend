@@ -66,7 +66,7 @@ class User(db.Model):
 
     # User information
     name = db.Column(db.String, nullable=False)
-    netid = db.Column(db.String, nullable=False, unique=True)
+    email = db.Column(db.String, nullable=False, unique=True)
     password_digest = db.Column(db.String, nullable=False)
     favorite_clubs = db.relationship('Club', secondary=association_club_user, back_populates='interested_users')
     created_posts = db.relationship('Post', cascade='delete')
@@ -79,7 +79,7 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name')
-        self.netid = kwargs.get('netid')
+        self.email = kwargs.get('email')
         self.password = kwargs.get('password')
         self.favorite_clubs = []
         self.created_posts = []
@@ -116,7 +116,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'netid': self.netid,
+            'email': self.email,
             'favorite_clubs': [c.serialize_no_users() for c in self.favorite_clubs],
             'created_posts': [p.serialize_no_users() for p in self.created_posts],
             'liked_posts': [p.serialize_no_users() for p in self.liked_posts]
@@ -126,7 +126,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'netid': self.netid,
+            'email': self.email,
             'favorite_clubs': [c.serialize() for c in self.favorite_clubs]
         }
     
@@ -134,7 +134,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'netid': self.netid
+            'email': self.email
         }
     
 class Post(db.Model):
