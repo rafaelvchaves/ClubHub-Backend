@@ -98,6 +98,8 @@ def register_account():
     post_body = json.loads(request.data)
     name = post_body.get('name')
     email = post_body.get('email')
+    if email[-11:] != '@cornell.edu':
+        return json.dump({'success': False, 'error': 'Invalid email domain'})
     password = post_body.get('password')
     if not name or not email or not password:
         return json.dump({'success': False, 'error': 'Missing name, email, or password'})
