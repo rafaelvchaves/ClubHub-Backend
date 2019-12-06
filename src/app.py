@@ -59,10 +59,10 @@ def create_club():
 
 @app.route('/api/club/<int:club_id>/')
 def get_club(club_id):
-    course = Club.query.filter_by(id=club_id).first()
-    if not course:
+    club = Club.query.filter_by(id=club_id).first()
+    if not club:
         return json.dumps({'success': False, 'error': 'Club not found'}), 404
-    return json.dumps({'success': True, 'data': course.serialize()}), 200
+    return json.dumps({'success': True, 'data': club.serialize()}), 200
 
 @app.route('/api/club/<int:club_id>/', methods=['DELETE'])
 def delete_club(club_id):
@@ -200,6 +200,35 @@ def add_post_to_favorites(user_id):
     db.session.add(post)
     db.session.commit()
     return json.dumps({'success': True, 'data': user.serialize()})
+
+# Still needs testing
+@app.route('/api/user/<int:user_id>/<int:club_id>/unfollow-club/')
+def unfollow_club(user_id, club_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return json.dumps({'success': False, 'error': 'User not found'}), 404
+    club = Club.query.filter_by(id=club_id).first()
+    if not club:
+        return json.dumps({'success': False, 'error': 'Club not found'}), 404
+    if club not in user.favorite_clubs:
+        return json.dumps({'success': False, 'error': 'Club not in list'})
+    user.favorite_clubs.remove(club)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': club.serialize()})
+
+@app.route('/api/user/<int:user_id>/<int:post_id>/unfollow-post/')
+def unfollow_post(user_id, post_id):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return json.dumps({'success': False, 'error': 'User not found'}), 404
+    post = Post.query.filter_by(id=post_id).first()
+    if not post:
+        return json.dumps({'success': False, 'error': 'Post not found'}), 404
+    if post not in user.liked_posts:
+        return json.dumps({'success': False, 'error': 'Post not in list'})
+    user.liked_posts.remove(post)
+    db.session.commit()
+    return json.dumps({'success': True, 'data': post.serialize()})
 
 """
 POSTS
