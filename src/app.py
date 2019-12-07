@@ -201,8 +201,7 @@ def add_post_to_favorites(user_id):
     db.session.commit()
     return json.dumps({'success': True, 'data': user.serialize()})
 
-# Still needs testing
-@app.route('/api/user/<int:user_id>/<int:club_id>/unfollow-club/')
+@app.route('/api/user/<int:user_id>/<int:club_id>/unfollow-club/', methods=['PUT'])
 def unfollow_club(user_id, club_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -211,12 +210,12 @@ def unfollow_club(user_id, club_id):
     if not club:
         return json.dumps({'success': False, 'error': 'Club not found'}), 404
     if club not in user.favorite_clubs:
-        return json.dumps({'success': False, 'error': 'Club not in list'})
+        return json.dumps({'success': False, 'error': 'Club not in list'}), 400
     user.favorite_clubs.remove(club)
     db.session.commit()
     return json.dumps({'success': True, 'data': club.serialize()})
 
-@app.route('/api/user/<int:user_id>/<int:post_id>/unfollow-post/')
+@app.route('/api/user/<int:user_id>/<int:post_id>/unfollow-post/', methods=['PUT])
 def unfollow_post(user_id, post_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -225,7 +224,7 @@ def unfollow_post(user_id, post_id):
     if not post:
         return json.dumps({'success': False, 'error': 'Post not found'}), 404
     if post not in user.liked_posts:
-        return json.dumps({'success': False, 'error': 'Post not in list'})
+        return json.dumps({'success': False, 'error': 'Post not in list'}), 400
     user.liked_posts.remove(post)
     db.session.commit()
     return json.dumps({'success': True, 'data': post.serialize()})
