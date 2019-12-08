@@ -20,18 +20,20 @@ CLUBS
 """
 @app.route('/api/clubs/')
 def get_all_clubs():
-    if not request.data:
+    args = request.args
+    if not args:
         clubs = Club.query.all()
     else:
-        request_body = json.loads(request.data)
-        category = request_body.get('category')
-        search_query = request_body.get('search_query')
-        level = request_body.get('level')
-        application_required = request_body.get('application_required')
+        category = args.get('category')
+        search_query = args.get('search_query')
+        level = args.get('level')
+        application_required = args.get('application_required')
+
         matches_category = Club.category == category if category else True
         matches_text = or_(Club.name.contains(search_query), Club.description.contains(search_query), Club.category.contains(search_query)) if search_query else True
         matches_level = Club.level == level if level else True
         matches_app_required = or_(Club.application_required == application_required, Club.application_required.is_(None)) if application_required is not None else True
+
         clubs = Club.query.filter(and_(matches_category, matches_text, matches_level, matches_app_required))
     res = {'success': True, 'data': [c.serialize() for c in clubs]}
     return json.dumps(res), 200
@@ -85,11 +87,11 @@ def get_all_users():
 def extract_token(request):
     auth_header = request.headers.get('Authorization')
     if not auth_header:
-        return False, json.dumps({'error': 'Missing authorization header'})
+        return False, json.dumps({'success': False, 'error': 'Missing authorization header'})
 
     bearer_token = auth_header.replace("Bearer ", "").strip()
     if not bearer_token:
-        return False, json.dumps({'error': 'Missing authorization header'})
+        return False, json.dumps({'success': False, 'error': 'Missing authorization header'})
 
     return True, bearer_token
 
@@ -98,14 +100,14 @@ def register_account():
     post_body = json.loads(request.data)
     name = post_body.get('name')
     email = post_body.get('email')
-    if email[-11:] != '@cornell.edu':
-        return json.dump({'success': False, 'error': 'Invalid email domain'})
+    if email[-11:] != 'cornell.edu':
+        return json.dumps({'success': False, 'error': 'Invalid email domain'})
     password = post_body.get('password')
     if not name or not email or not password:
-        return json.dump({'success': False, 'error': 'Missing name, email, or password'})
+        return json.dumps({'success': False, 'error': 'Missing name, email, or password'})
     created, user = users_dao.create_user(name, email, password)
     if not created:
-        return json.dumps({'error': 'User already exists'})
+        return json.dumps({'success': False, 'error': 'User already exists'})
     return json.dumps({
         'session_token': user.session_token,
         'session_expiration': str(user.session_expiration),
@@ -121,7 +123,7 @@ def login():
         return json.dumps({'success': False, 'error': 'Missing name, email, or password'})
     success, user = users_dao.verify_credentials(email, password)
     if not success:
-        return json.dumps({'error': 'Incorrect email or password'})
+        return json.dumps({'success': False, 'error': 'Incorrect email or password'})
     return json.dumps({
         'session_token': user.session_token,
         'session_expiration': str(user.session_expiration),
@@ -153,7 +155,7 @@ def secret_message():
     if not user or not user.verify_session_token(session_token):
         return json.dumps({'success': False, 'error': 'Invalid session token'})
 
-    return json.dumps({'success': True})
+    return json.dumps({'success': True, 'data': user.serialize()})
 
 @app.route('/api/user/<int:user_id>/', methods=['DELETE'])
 def delete_user(user_id):
@@ -215,7 +217,7 @@ def unfollow_club(user_id, club_id):
     db.session.commit()
     return json.dumps({'success': True, 'data': club.serialize()})
 
-@app.route('/api/user/<int:user_id>/<int:post_id>/unfollow-post/', methods=['PUT])
+@app.route('/api/user/<int:user_id>/<int:post_id>/unfollow-post/', methods=['PUT'])
 def unfollow_post(user_id, post_id):
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -234,12 +236,12 @@ POSTS
 """
 @app.route('/api/posts/')
 def get_all_posts():
-    if not request.data:
+    args = request.args
+    if not args:
         posts = Post.query.all()
     else:
-        request_body = json.loads(request.data)
-        search_query = request_body.get('search_query')
-        author = request_body.get('author_id')
+        search_query = args.get('search_query')
+        author = args.get('author_id')
         matches_text = or_(Post.title.contains(search_query), Post.body.contains(search_query)) if search_query else True
         matches_author = Post.author_id == author if author else True
         posts = Post.query.filter(and_(matches_author, matches_text))
@@ -268,7 +270,7 @@ def get_post(post_id):
     post = Post.query.filter_by(id=post_id).first()
     if not post:
         return json.dumps({'success': False, 'error': 'Post not found'}), 404
-    return json.dumps({'success': True, 'data': post.serialize_no_users()}), 200
+    return json.dumps({'success': True, 'data': post.serialize()}), 200
 
 @app.route('/api/post/<int:post_id>/', methods=['DELETE'])
 def delete_post(post_id):

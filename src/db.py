@@ -122,14 +122,6 @@ class User(db.Model):
             'liked_posts': [p.serialize_no_users() for p in self.liked_posts]
         }
 
-    def serialize_no_posts(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'email': self.email,
-            'favorite_clubs': [c.serialize() for c in self.favorite_clubs]
-        }
-    
     def serialize_no_clubs(self):
         return {
             'id': self.id,
@@ -157,7 +149,7 @@ class Post(db.Model):
             'title': self.title,
             'body': self.body,
             'author_id': self.author_id,
-            'interested_users': [u.serialize_no_posts() for u in self.interested_users]
+            'interested_users': [u.serialize_no_clubs() for u in self.interested_users]
         }
 
     def serialize_no_users(self):
